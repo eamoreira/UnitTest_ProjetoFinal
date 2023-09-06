@@ -5,73 +5,66 @@ from src.models.ice_cream_stand import IceCreamStand
 
 class TestIceCreamStand:
 
+    sem_estoque = []
+    com_estoque = ['chocolate', 'morango', 'creme']
+
     @pytest.fixture
-    def setup_ice_cream_stand(self):
-        return IceCreamStand('Kibon', 'sorvetes', ['chocolate', 'morango', 'creme'])
+    def setup_ice_cream_stand(self, estoque):
+        return IceCreamStand('Kibon', 'sorvetes', estoque)
 
-    def test_flavors_available(self, setup_ice_cream_stand, capsys):
+    @pytest.fixture
+    def setup_ice_cream_stand_no_estoque(self):
+        return IceCreamStand('Kibon', 'sorvetes', [])
+
+    @pytest.mark.parametrize('estoque, expected_result',
+                             [(com_estoque, '\nNo momento temos os seguintes sabores de sorvete disponíveis:'
+                              '\n\t-chocolate\n\t-morango\n\t-creme\n'),
+                              (sem_estoque, 'Estamos sem estoque atualmente!\n')])
+    def test_flavors_available(self, setup_ice_cream_stand, estoque, expected_result, capsys):
         # Setup
-        resultado_esperado = (
-            "\nNo momento temos os seguintes sabores de sorvete disponíveis:"
-            "\n\t-chocolate"
-            "\n\t-morango"
-            "\n\t-creme\n"
-        )
+        sorveteria = setup_ice_cream_stand
 
         # Chamada
-        setup_ice_cream_stand.flavors_available()
+        sorveteria.flavors_available()
         captured = capsys.readouterr()
         resultado = captured.out
 
         # Avaliação
-        assert resultado == resultado_esperado
+        assert resultado == expected_result
 
-
-    def test_flavors_no_estoque(self, setup_ice_cream_stand, capsys):
+    @pytest.mark.parametrize('estoque, flavor, expected_result',
+                             [(com_estoque, 'chocolate', 'Temos no momento chocolate!\n'),
+                              (com_estoque, '', 'Por favor, informe um sabor válido.\n'),
+                              (com_estoque, 'menta', 'Não temos no momento menta!\n'),
+                              (sem_estoque, 'chocolate', 'Estamos sem estoque atualmente!\n'),
+                              (sem_estoque, '', 'Estamos sem estoque atualmente!\n'),
+                              (sem_estoque, 'menta', 'Estamos sem estoque atualmente!\n')])
+    def test_find_flavor(self, setup_ice_cream_stand, flavor, expected_result, capsys):
         # Setup
-        resultado_esperado = "Estamos sem estoque atualmente!\n"
-        setup_ice_cream_stand.flavors = []
+        sorveteria = setup_ice_cream_stand
 
         # Chamada
-        setup_ice_cream_stand.flavors_available()
+        sorveteria.find_flavor(flavor)
         captured = capsys.readouterr()
         resultado = captured.out
 
         # Avaliação
-        assert resultado == resultado_esperado
+        assert resultado == expected_result
 
-    @pytest.mark.parametrize('flavor, result', [
-        ('chocolate', 'Temos no momento chocolate!\n'),
-        ('morango', 'Temos no momento morango!\n'),
-        ('', 'Sabor indisponível!\n'),
-        ('menta', 'Sabor indisponível!\n')
-    ])
-    def test_find_flavor_success(self, flavor, setup_ice_cream_stand, capsys, result):
+    @pytest.mark.parametrize('estoque, flavor, expected_result',
+                             [(com_estoque, 'menta', 'menta adicionado ao estoque!\n'),
+                              (com_estoque, 'morango', 'morango já disponível!\n'),
+                              (com_estoque, '', 'Por favor, informe um sabor válido.\n'),
+                              (sem_estoque, 'menta', 'menta adicionado ao estoque!\n'),
+                              (sem_estoque, '', 'Por favor, informe um sabor válido.\n')])
+    def test_add_flavor(self, setup_ice_cream_stand, flavor, expected_result, capsys):
         # Setup
-        resultado_esperado = result
+        sorveteria = setup_ice_cream_stand
 
         # Chamada
-        setup_ice_cream_stand.find_flavor(flavor)
+        sorveteria.add_flavor(flavor)
         captured = capsys.readouterr()
         resultado = captured.out
 
         # Avaliação
-        assert resultado == resultado_esperado
-
-    @pytest.mark.parametrize('flavor, result', [
-        ('menta', 'menta adicionado ao estoque!\n'),
-        ('morango', 'morango já disponível!\n'),
-        ('chocolate', 'chocolate já disponível!\n'),
-        ('', 'Sabor inválido!\n')
-    ])
-    def test_add_flavor_success(self, flavor, setup_ice_cream_stand, capsys, result):
-        # Setup
-        resultado_esperado = result
-
-        # Chamada
-        setup_ice_cream_stand.add_flavor(flavor)
-        captured = capsys.readouterr()
-        resultado = captured.out
-
-        # Avaliação
-        assert resultado == resultado_esperado
+        assert resultado == expected_result
