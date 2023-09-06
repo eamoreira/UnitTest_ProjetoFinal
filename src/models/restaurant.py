@@ -21,18 +21,18 @@ class Restaurant:
         if not self.open:
             self.open = True
             self.number_served = 0
-            print(f"{self.restaurant_name} agora está aberto!")
+            print(f"{self.restaurant_name} abrindo!")
         else:
-            print(f"{self.restaurant_name} já está aberto!")
+            print(f"{self.restaurant_name} aberto!")
 
     def close_restaurant(self):
         """Imprima uma mensagem indicando que o restaurante está fechado para negócios."""
         if self.open:
             self.open = False
             self.number_served = 0
-            print(f"{self.restaurant_name} agora está fechado!")
+            print(f"{self.restaurant_name} fechando!")
         else:
-            print(f"{self.restaurant_name} já está fechado!")
+            print(f"{self.restaurant_name} fechado!")
 
     def set_number_served(self, total_customers):
         """Defina o número total de pessoas atendidas por este restaurante até o momento."""

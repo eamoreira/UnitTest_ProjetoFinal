@@ -2,133 +2,81 @@ import pytest
 
 from src.models.restaurant import Restaurant
 
-
 class TestRestaurant:
 
     @pytest.fixture
-    def restaurant_setup(self):
-        # Criar uma instância do restaurante e retorná-la
-        return Restaurant("Sorveteria", "Sorvetes")
+    def restaurant(self):
+        return Restaurant('Meu Restaurante', 'Comida Brasileira')
 
-    @pytest.mark.parametrize('result',
-                             [
-                                 'Esse restaturante chama Sorveteria e serve Sorvetes.\n'
- 'Esse restaturante está servindo 0 consumidores desde que está aberto.\n'
-                             ])
-    def test_describe_restaurant(self, restaurant_setup, result, capsys):
+    def test_describe_restaurant(self, restaurant, capsys):
         # Setup
-        restaurante = restaurant_setup
-        resultado_esperado = result
+        expected_output = (
+            "Esse restaurante chama Meu Restaurante e serve Comida Brasileira.\n"
+            "Esse restaurante está servindo 0 consumidores desde que está aberto.\n"
+        )
 
         # Chamada
-        restaurante.describe_restaurant()
+        restaurant.describe_restaurant()
         captured = capsys.readouterr()
-        resultado = captured.out
+        output = captured.out
 
         # Avaliação
-        assert resultado == resultado_esperado
+        assert output == expected_output
 
-    @pytest.mark.parametrize('result',
-                             [
-                                 'Sorveteria agora está aberto!\n',
-                                 'Sorveteria já está aberto!\n'
-                             ])
-    def test_open_restaurant(self, restaurant_setup, result, capsys):
+    @pytest.mark.parametrize('isOpened, result', [
+        (True, ' aberto!\n'),
+        (False, ' abrindo!\n')
+    ])
+    def test_open_restaurant(self, isOpened, restaurant, capsys, result):
         # Setup
-        restaurante = restaurant_setup
         resultado_esperado = result
+        restaurant.open = isOpened
 
         # Chamada
-        restaurante.open_restaurant()
+        restaurant.open_restaurant()
         captured = capsys.readouterr()
-        resultado = captured.out
+        output = captured.out
 
         # Avaliação
-        assert resultado == resultado_esperado
+        assert output == f'{restaurant.restaurant_name}' + resultado_esperado
 
-    @pytest.mark.parametrize('result',
-                             [
-                                 'Sorveteria agora está fechado!\n',
-                                 'Sorveteria já está fechado!\n'
-                             ])
-    def test_close_restaurant(self, restaurant_setup, result, capsys):
+    @pytest.mark.parametrize('isOpen, result', [
+        (False, ' fechado!\n'),
+        (True, ' fechando!\n')
+    ])
+    def test_close_restaurant(self, isOpen, restaurant, capsys, result):
         # Setup
-        restaurante = restaurant_setup
-        resultado_esperado = result
+        expected_output = result
+        restaurant.open = isOpen
 
         # Chamada
-        restaurante.close_restaurant()
+        restaurant.close_restaurant()  # Em seguida, fecha o restaurante
         captured = capsys.readouterr()
-        resultado = captured.out
+        output = captured.out
 
         # Avaliação
-        assert resultado == resultado_esperado
+        assert output == f'{restaurant.restaurant_name}' + expected_output
 
-    @pytest.mark.parametrize('result',
-                             [
-                                 '10\n',
-                                 'Sorveteria está fechado!\n'
-                             ])
-    def test_set_number_served(self, restaurant_setup, result, capsys):
+    def test_set_number_served(self, restaurant, capsys):
         # Setup
-        restaurante = restaurant_setup
-        resultado_esperado = result
+        expected_output = "Meu Restaurante está fechado!\n"
 
         # Chamada
-        restaurante.set_number_served(10)
+        restaurant.set_number_served(50)  # Tenta definir o número de clientes quando o restaurante está fechado
         captured = capsys.readouterr()
-        resultado = captured.out
+        output = captured.out
 
         # Avaliação
-        assert resultado == resultado_esperado
+        assert output == expected_output
 
-    @pytest.mark.parametrize('result',
-                             [
-                                 '22\n',
-                                 'Sorveteria está fechado!\n'
-                             ])
-    def test_increment_number_served(self, restaurant_setup, result, capsys):
+    def test_increment_number_served(self, restaurant, capsys):
         # Setup
-        restaurante = restaurant_setup
-        resultado_esperado = result
-        restaurante.set_number_served(10)
+        expected_output = "Meu Restaurante está fechado!\n"
 
         # Chamada
-        restaurante.increment_number_served(12)
+        restaurant.increment_number_served(10)  # Tenta incrementar o número de clientes quando o restaurante está fechado
         captured = capsys.readouterr()
-        resultado = captured.out
+        output = captured.out
 
         # Avaliação
-        assert resultado == resultado_esperado
-
-    '''
-        # Cenário de teste com sucesso, somando o numero de clientes já servidos
-        def test_increment_number_served_com_sucesso(self, restaurant_setup, capsys):
-        # Setup
-        restaurante = restaurant_setup
-        resultado_esperado = result
-        restaurante.set_number_served(10)
-
-        # Chamada
-        restaurante.increment_number_served(12)
-        captured = capsys.readouterr()
-        resultado = captured.out
-
-        # Avaliação
-        assert resultado == resultado_esperado
-        
-        # Cenário de teste alternativo, tentando somar no numero de clientes já servidos em um restaurante já fechado
-        def test_increment_number_served_fechado(self, restaurant_setup, capsys):
-        # Setup
-        restaurante = restaurant_setup
-        resultado_esperado = result
-        restaurante.set_number_served(10)
-
-        # Chamada
-        restaurante.increment_number_served(12)
-        captured = capsys.readouterr()
-        resultado = captured.out
-
-        # Avaliação
-        assert resultado == resultado_esperado
-    '''
+        assert output == expected_output
