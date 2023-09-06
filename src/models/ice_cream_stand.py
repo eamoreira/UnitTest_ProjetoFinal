@@ -27,15 +27,17 @@ class IceCreamStand(Restaurant):
         """Verifica se o sabor informado está disponível."""
         if flavor in self.flavors:
             print(f"Temos no momento {flavor}!")
-        else:
-            print(f"Não temos no momento {flavor}!")
+        elif flavor == '' or flavor not in self.flavors:
+            print(f"Sabor indisponível!")
 
     # 8- Melhoria: Removido do metodo adicionar sabor o retorno desnecessario "Estamos sem estoque atualmente!"
     # 9- Melhoria: Alterado do metodo adicionar sabor a condição para acrescentar
     # apenas um não existente na lista de sabores
     def add_flavor(self, flavor):
         """Add o sabor informado ao estoque."""
-        if flavor not in self.flavors:
+        if flavor == '':
+            print(f"Sabor inválido!")
+        elif flavor not in self.flavors:
             self.flavors.append(flavor)
             print(f"{flavor} adicionado ao estoque!")
         else:
